@@ -152,8 +152,11 @@ class Board(object):
 		self.id = board_id
 		self.name = name
 
-	def __repr__(self):
-		return '<Board %s>' % self.name
+        def __repr__(self):
+                return unicode(self).encode('utf8')
+
+	def __unicode__(self):
+		return u'<Board %s>' % self.name
 
 	def fetch(self):
 		"""Fetch all attributes for this board"""
@@ -185,8 +188,8 @@ class Board(object):
 				query_params = {'cards': 'none', 'filter': list_filter})
 		lists = list()
 		for obj in json_obj:
-			l = List(self, obj['id'], name=obj['name'].encode('utf-8'))
-			l.closed = obj['closed']
+			l = List(self, obj['id'])
+                        l.update_with_json(obj)
 			lists.append(l)
 
 		return lists
@@ -210,8 +213,8 @@ class Board(object):
 				query_params = {'filter': card_filter})
 		cards = list()
 		for obj in json_obj:
-			c = Card(self, obj['id'], name=obj['name'].encode('utf-8'))
-			c.closed = obj['closed']
+			c = Card(self, obj['id'])
+                        card.update_with_json(c)
 			cards.append(c)
 
 		return cards
@@ -231,13 +234,19 @@ class List(object):
 		self.id = list_id
 		self.name = name
 
-	def __repr__(self):
-		return '<List %s>' % self.name
+        def __repr__(self):
+                return unicode(self).encode('utf8')
+
+	def __unicode__(self):
+		return u'<List %s>' % self.name
 
 	def fetch(self):
 		"""Fetch all attributes for this list"""
 		json_obj = self.client.fetch_json('/lists/'+self.id)
-		self.name = json_obj['name'].encode('utf-8')
+                self.update_with_json(json_obj)
+
+        def update_with_json(self, json_obj):
+		self.name = json_obj['name']
 		self.closed = json_obj['closed']
 
 	def list_cards(self):
@@ -245,10 +254,8 @@ class List(object):
 		json_obj = self.client.fetch_json('/lists/'+self.id+'/cards')
 		cards = list()
 		for c in json_obj:
-			card = Card(self, c['id'], name = c['name'].encode('utf-8'))
-			card.description = c.get('desc','').encode('utf-8')
-			card.closed = c['closed']
-			card.url = c['url']
+			card = Card(self, c['id'])
+                        card.update_with_json(c)
 			cards.append(card)
 		return cards
 
@@ -264,6 +271,7 @@ class List(object):
 				headers = {'Content-type': 'application/json'},
 				post_args = {'name': name, 'idList': self.id, 'desc': desc},)
 		card = Card(self, json_obj['id'])
+                card.update_with_json(json_obj)
 		card.name = json_obj['name']
 		card.description = json_obj.get('desc','')
 		card.closed = json_obj['closed']
@@ -287,15 +295,14 @@ class Card(object):
 		self.id = card_id
 		self.name = name
 
-	def __repr__(self):
-		return '<Card %s>' % self.name
+        def __repr__(self):
+                return unicode(self).encode('utf8')
 
-	def fetch(self):
-		"""Fetch all attributes for this card"""
-		json_obj = self.client.fetch_json(
-				'/cards/'+self.id,
-				query_params = {'badges': False})
-		self.name = json_obj['name'].encode('utf-8')
+	def __unicode__(self):
+		return u'<Card %s>' % self.name
+
+        def update_with_json(self, json_obj):
+                self.name = json_obj['name']
 		self.description = json_obj.get('desc','')
 		self.closed = json_obj['closed']
 		self.url = json_obj['url']
@@ -305,6 +312,14 @@ class Card(object):
 		self.board_id = json_obj['idBoard']
 		self.labels = json_obj['labels']
 		self.badges = json_obj['badges']
+
+
+	def fetch(self):
+		"""Fetch all attributes for this card"""
+		json_obj = self.client.fetch_json(
+				'/cards/'+self.id,
+				query_params = {'badges': False})
+                self.update_with_json(json_obj)
 
 	def fetch_actions(self, action_filter='createCard'):
 		"""
