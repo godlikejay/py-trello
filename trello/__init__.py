@@ -152,8 +152,8 @@ class Board(object):
 		self.id = board_id
 		self.name = name
 
-        def __repr__(self):
-                return unicode(self).encode('utf8')
+	def __repr__(self):
+		return unicode(self).encode('utf8')
 
 	def __unicode__(self):
 		return u'<Board %s>' % self.name
@@ -189,7 +189,7 @@ class Board(object):
 		lists = list()
 		for obj in json_obj:
 			l = List(self, obj['id'])
-                        l.update_with_json(obj)
+			l.update_with_json(obj)
 			lists.append(l)
 
 		return lists
@@ -214,7 +214,7 @@ class Board(object):
 		cards = list()
 		for obj in json_obj:
 			c = Card(self, obj['id'])
-                        card.update_with_json(c)
+			card.update_with_json(c)
 			cards.append(c)
 
 		return cards
@@ -234,8 +234,8 @@ class List(object):
 		self.id = list_id
 		self.name = name
 
-        def __repr__(self):
-                return unicode(self).encode('utf8')
+	def __repr__(self):
+		return unicode(self).encode('utf8')
 
 	def __unicode__(self):
 		return u'<List %s>' % self.name
@@ -243,9 +243,9 @@ class List(object):
 	def fetch(self):
 		"""Fetch all attributes for this list"""
 		json_obj = self.client.fetch_json('/lists/'+self.id)
-                self.update_with_json(json_obj)
+		self.update_with_json(json_obj)
 
-        def update_with_json(self, json_obj):
+	def update_with_json(self, json_obj):
 		self.name = json_obj['name']
 		self.closed = json_obj['closed']
 
@@ -255,7 +255,7 @@ class List(object):
 		cards = list()
 		for c in json_obj:
 			card = Card(self, c['id'])
-                        card.update_with_json(c)
+			card.update_with_json(c)
 			cards.append(card)
 		return cards
 
@@ -271,7 +271,7 @@ class List(object):
 				headers = {'Content-type': 'application/json'},
 				post_args = {'name': name, 'idList': self.id, 'desc': desc},)
 		card = Card(self, json_obj['id'])
-                card.update_with_json(json_obj)
+		card.update_with_json(json_obj)
 		card.name = json_obj['name']
 		card.description = json_obj.get('desc','')
 		card.closed = json_obj['closed']
@@ -295,14 +295,14 @@ class Card(object):
 		self.id = card_id
 		self.name = name
 
-        def __repr__(self):
-                return unicode(self).encode('utf8')
+	def __repr__(self):
+		return unicode(self).encode('utf8')
 
 	def __unicode__(self):
 		return u'<Card %s>' % self.name
 
-        def update_with_json(self, json_obj):
-                self.name = json_obj['name']
+	def update_with_json(self, json_obj):
+		self.name = json_obj['name']
 		self.description = json_obj.get('desc','')
 		self.closed = json_obj['closed']
 		self.url = json_obj['url']
@@ -319,7 +319,7 @@ class Card(object):
 		json_obj = self.client.fetch_json(
 				'/cards/'+self.id,
 				query_params = {'badges': False})
-                self.update_with_json(json_obj)
+		self.update_with_json(json_obj)
 
 	def fetch_actions(self, action_filter='createCard'):
 		"""
